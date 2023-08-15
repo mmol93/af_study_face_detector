@@ -43,6 +43,6 @@ while True:
     cv2.circle(img, center=tuple(bottom_right), radius=1, color=(255, 0, 0), thickness=2, lineType=cv2.LINE_AA)
     cv2.circle(img, center=tuple((center_x, center_y)), radius=1, color=(0, 0, 255), thickness=2, lineType=cv2.LINE_AA)
 
-    # show movie
+    # show video
     cv2.imshow('img', img)
     cv2.waitKey(1)

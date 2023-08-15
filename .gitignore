@@ -176,3 +176,4 @@ pyrightconfig.json
 # custom file
 *.dat
 *.mp4
+misc.xml
