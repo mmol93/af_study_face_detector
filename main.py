@@ -6,7 +6,36 @@ cap = cv2.VideoCapture('video.mp4')
 scale = 0.3
 
 # load overlay image
-overlay_img = cv2.imread('android_logo_512px.png', cv2.IMREAD_UNCHANGED)
+overlay_img = cv2.imread('test.png', cv2.IMREAD_UNCHANGED)
+
+
+# image overlay function
+def overlay_transparent(background_img, img_to_overlay_t, x, y, overlay_size=None):
+    bg_img = background_img.copy()
+    # convert 3 channels to 4 channels
+    if bg_img.shape[2] == 3:
+        bg_img = cv2.cvtColor(bg_img, cv2.COLOR_BGR2BGRA)
+
+    if overlay_size is not None:
+        img_to_overlay_t = cv2.resize(img_to_overlay_t.copy(), overlay_size)
+
+    b, g, r, a = cv2.split(img_to_overlay_t)
+
+    mask = cv2.medianBlur(a, 5)
+
+    h, w, _ = img_to_overlay_t.shape
+    roi = bg_img[int(y - h / 2):int(y + h / 2), int(x - w / 2):int(x + w / 2)]
+
+    img1_bg = cv2.bitwise_and(roi.copy(), roi.copy(), mask=cv2.bitwise_not(mask))
+    img2_fg = cv2.bitwise_and(img_to_overlay_t, img_to_overlay_t, mask=mask)
+
+    bg_img[int(y - h / 2):int(y + h / 2), int(x - w / 2):int(x + w / 2)] = cv2.add(img1_bg, img2_fg)
+
+    # convert 4 channels to 4 channels
+    bg_img = cv2.cvtColor(bg_img, cv2.COLOR_BGRA2BGR)
+
+    return bg_img
+
 
 # init face detector module
 detector = dlib.get_frontal_face_detector()
@@ -39,6 +68,9 @@ while True:
     # compute face size (resize for image)
     face_size = int(max(bottom_right - top_left) * 1.5)
 
+    # overlay image
+    result = overlay_transparent(img, overlay_img, center_x, center_y - 35, overlay_size=(face_size, face_size))
+
     # visualize
     img = cv2.rectangle(img, pt1=(face.left(), face.top(),), pt2=(face.right(), face.bottom()), color=(255, 255, 255),
                         thickness=2, lineType=cv2.LINE_AA)
@@ -50,5 +82,5 @@ while True:
 
     # show video
     cv2.imshow('img', img)
-
+    cv2.imshow('result', result)
     cv2.waitKey(1)
