@@ -1,9 +1,12 @@
+import cv2
+import dlib
 import numpy as np
-import cv2, dlib, sys
 
 # init video file
 cap = cv2.VideoCapture('video.mp4')
 scale = 0.3
+face_size = 0
+pre_face_size = 0
 
 # load overlay image
 overlay_img = cv2.imread('test.png', cv2.IMREAD_UNCHANGED)
@@ -66,10 +69,12 @@ while True:
     center_x, center_y = np.mean(shape_2d, axis=0).astype(int)
 
     # compute face size (resize for image)
-    face_size = int(max(bottom_right - top_left) * 1.5)
+    if face_size == 0 or face_size > pre_face_size:
+        pre_face_size = face_size
+        face_size = int(max(bottom_right - top_left) * 1.5)
 
     # overlay image
-    result = overlay_transparent(img, overlay_img, center_x, center_y - 35, overlay_size=(face_size, face_size))
+    result = overlay_transparent(img, overlay_img, center_x, center_y - 25, overlay_size=(face_size, face_size))
 
     # visualize
     img = cv2.rectangle(img, pt1=(face.left(), face.top(),), pt2=(face.right(), face.bottom()), color=(255, 255, 255),
